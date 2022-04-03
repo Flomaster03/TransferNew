@@ -1,15 +1,17 @@
 import kotlin.math.roundToInt
 
-const val LIMIT_CARD = 600_000_00
+const val LIMIT_CARD_MOUNTH = 600_000_00
+const val LIMIT_CARD_DAY = 150_000_00
 const val LIMIT_VK_PAY_MONTH = 40_000_00
 const val LIMIT_VK_PAY_TRANSFER = 15_000_00
-const val TAX_FREE_CARD = 75_000_00
+const val TAX_FREE_CARD_MAX = 75_000_00
+const val TAX_FREE_CARD_MIN = 300_00
 const val COMMISSION_MAESTRO_MASTERCARD = 0.006
 const val COMMISSION_VISA_MIR = 0.0075
 
 
 fun main() {
-    val typeOfCard = "VK Pay"
+    val typeOfCard = "Mastercard"
     val amountMonth = 0
     val amountPay = 1000_00
 
@@ -25,7 +27,7 @@ fun main() {
 fun check(typeOfCard: String, amountMonth: Int, amountPay: Int): Boolean {
     return when (typeOfCard) {
         "VK Pay" -> if (amountMonth <= LIMIT_VK_PAY_MONTH && amountPay <= LIMIT_VK_PAY_TRANSFER) true else false
-        "Mastercard", "Maestro", "Visa", "Mir" -> if (amountMonth <= LIMIT_CARD) true else false
+        "Mastercard", "Maestro", "Visa", "Mir" -> if (amountMonth + amountPay <= LIMIT_CARD_MOUNTH && amountPay <= LIMIT_CARD_DAY) true else false
         else -> error("Такой платежной системы не существует")
     }
 }
@@ -33,8 +35,8 @@ fun check(typeOfCard: String, amountMonth: Int, amountPay: Int): Boolean {
 fun calculation(typeOfCard: String, amountMonth: Int, amountPay: Int): Int {
     return when (typeOfCard) {
         "VK Pay" -> 0
-        "Mastercard", "Maestro" -> if (amountMonth <= TAX_FREE_CARD && amountPay <= TAX_FREE_CARD) 0 else (amountPay * COMMISSION_MAESTRO_MASTERCARD + 20_00).roundToInt()
-        "Visa", "Mir" -> if (amountPay > 35_00) (amountPay * COMMISSION_VISA_MIR).roundToInt() else 35_00
+        "Mastercard", "Maestro" -> if (amountMonth + amountPay <= TAX_FREE_CARD_MAX && amountMonth + amountPay >= TAX_FREE_CARD_MIN) 0 else (amountPay * COMMISSION_MAESTRO_MASTERCARD + 20_00).roundToInt()
+        "Visa", "Mir" -> if (amountPay * COMMISSION_VISA_MIR > 35_00.0) (amountPay * COMMISSION_VISA_MIR).roundToInt() else 35_00
         else -> error("Такой платежной системы не существует")
     }
 }
